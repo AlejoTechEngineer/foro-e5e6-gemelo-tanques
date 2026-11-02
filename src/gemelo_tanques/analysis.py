@@ -62,9 +62,42 @@ def diagnostico_d1(df_manual: pd.DataFrame) -> dict:
     m = sm.Logit(df_manual["desborde"].astype(int), X).fit(disp=0)
     or_ = float(np.exp(m.params["margen_reaccion_min"]))
     ic = np.exp(m.conf_int().loc["margen_reaccion_min"].to_numpy())
+    # Lectura calculada a partir del OR y su IC (nunca fija)
+    if ic[1] < 1:
+        lectura = (f"OR = {or_:.2f} con IC95 % por debajo de 1: cada minuto adicional de margen "
+                   "reduce las probabilidades de desborde (consistente con D1)")
+    elif ic[0] > 1:
+        lectura = f"OR = {or_:.2f} con IC95 % por encima de 1: el signo contradice D1"
+    else:
+        lectura = f"OR = {or_:.2f} con IC95 % que incluye 1: D1 no concluyente con estos datos"
     return {"odds_ratio_por_minuto_de_margen": or_, "ic95": (float(ic[0]), float(ic[1])),
-            "p_valor": float(m.pvalues["margen_reaccion_min"]),
-            "lectura": "OR < 1: cada minuto adicional de margen reduce las probabilidades de desborde"}
+            "p_valor": float(m.pvalues["margen_reaccion_min"]), "lectura": lectura}
+
+
+def prueba_h2(df_pred: pd.DataFrame, p90_respuesta_min: float) -> dict:
+    """H2: avisos con antelación real > P90 del tiempo de respuesta desbordan en menor proporción.
+
+    Se comparan todos los avisos emitidos (acusados o no) según su antelación real.
+    Referencia = antelación <= P90; intervención = antelación > P90.
+    Criterio de descarte: se descarta si p(> P90) >= p(<= P90).
+    """
+    d = df_pred[df_pred["modo"] == "predictivo"]
+    mayor = d["antelacion_real_min"] > p90_respuesta_min
+    lo, hi = d.loc[~mayor, "desborde"], d.loc[mayor, "desborde"]
+    if len(lo) == 0 or len(hi) == 0:
+        return {"p90_respuesta_min": p90_respuesta_min, "n_menor_igual_p90": len(lo),
+                "n_mayor_p90": len(hi), "decision": "NO EVALUABLE (un grupo vacío)"}
+    r = comparar_proporciones(int(lo.sum()), len(lo), int(hi.sum()), len(hi))
+    descartada = r["p_intervencion"] >= r["p_referencia"]
+    return {"p90_respuesta_min": p90_respuesta_min,
+            "n_menor_igual_p90": len(lo), "n_mayor_p90": len(hi),
+            "p_desborde_menor_igual_p90": r["p_referencia"],
+            "p_desborde_mayor_p90": r["p_intervencion"],
+            "reduccion_absoluta": r["reduccion_absoluta"],
+            "reduccion_absoluta_ic95": r["reduccion_absoluta_ic95"],
+            "p_fisher": r["p_fisher"], "H_descartada_por_criterio": bool(descartada),
+            "decision": "DESCARTADA" if descartada else
+            ("SOSTENIDA (p<0,05)" if r["p_fisher"] < 0.05 else "NO CONCLUYENTE")}
 
 
 def diagnostico_d2(df_manual: pd.DataFrame) -> dict:

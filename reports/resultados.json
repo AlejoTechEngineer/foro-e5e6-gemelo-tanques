@@ -2,13 +2,13 @@
   "seed": 2026,
   "meses": 6,
   "d1": {
-    "odds_ratio_por_minuto_de_margen": 0.6759337493164002,
+    "odds_ratio_por_minuto_de_margen": 0.6759337493163998,
     "ic95": [
-      0.48003600860541135,
-      0.9517753361716783
+      0.4800360086054123,
+      0.9517753361716755
     ],
-    "p_valor": 0.024895087980376825,
-    "lectura": "OR < 1: cada minuto adicional de margen reduce las probabilidades de desborde"
+    "p_valor": 0.02489508798037564,
+    "lectura": "OR = 0.68 con IC95 % por debajo de 1: cada minuto adicional de margen reduce las probabilidades de desborde (consistente con D1)"
   },
   "d2": {
     "p_vigilancia": 0.0,
@@ -110,6 +110,21 @@
     "proporcion_acusados_a_tiempo": 0.9903121636167922
   },
   "p90_respuesta_otra_min": 7.345813889552339,
+  "h2": {
+    "p90_respuesta_min": 7.345813889552339,
+    "n_menor_igual_p90": 244395,
+    "n_mayor_p90": 122157,
+    "p_desborde_menor_igual_p90": 0.03055708995683218,
+    "p_desborde_mayor_p90": 0.007932414843193595,
+    "reduccion_absoluta": 0.02262467511363858,
+    "reduccion_absoluta_ic95": [
+      0.021801926451033644,
+      0.02348008902736462
+    ],
+    "p_fisher": 0.0,
+    "H_descartada_por_criterio": false,
+    "decision": "SOSTENIDA (p<0,05)"
+  },
   "base_manual_proporcion": 0.032336476134354745,
   "muestra": {
     "p_base": 0.032336476134354745,

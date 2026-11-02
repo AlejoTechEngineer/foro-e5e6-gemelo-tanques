@@ -73,6 +73,7 @@ def ejecutar_todo(ruta_cfg: Path, salida: Path, datos: Path, seed: int, meses: i
     base_s = simulation.generar_base(esc, 240, np.random.default_rng(seed + 2))
     man_s = simulation.aplicar_modo(base_s, esc, "manual")
     filas = []
+    corridas_h2 = []  # avisos con el acuse del YAML, para la prueba directa de H2
     for p_otra in (0.50, 0.70, 0.85, 1.00):
         for L in (0, 1, 2, 3, 4, 6, 8, 10, 12):
             d = simulation.aplicar_modo(base_s, esc, "predictivo", float(L), sigma_pron,
@@ -81,10 +82,14 @@ def ejecutar_todo(ruta_cfg: Path, salida: Path, datos: Path, seed: int, meses: i
             filas.append({"p_acuse_otra": p_otra, "antelacion_min": L,
                           "proporcion_desborde": d["desborde"].mean(),
                           "pct_a_tiempo_acusados": 1 - ac["desborde"].mean()})
+            if p_otra == esc.operario.p_acuse_otra:
+                corridas_h2.append(d[["modo", "antelacion_real_min", "desborde"]])
     sens = pd.DataFrame(filas)
     sens.to_csv(salida / "sensibilidad.csv", index=False)
     p90_otra = float(base_s.loc[base_s.atencion == "otra_actividad", "t_respuesta_aviso_min"].quantile(.9))
     R["p90_respuesta_otra_min"] = p90_otra
+    # Prueba directa de H2: antelación real > P90 vs. <= P90 (todas las antelaciones de la malla)
+    R["h2"] = analysis.prueba_h2(pd.concat(corridas_h2, ignore_index=True), p90_otra)
     R["base_manual_proporcion"] = float(man_s["desborde"].mean())
     report.fig_sensibilidad(sens, p90_otra, float(man_s["desborde"].mean()), figs / "fig5_sensibilidad.png")
 
@@ -163,7 +168,7 @@ def _resumen_md(R, esc, tabla, cal, pron, params, res_man, res_pre, sens) -> str
     d1, d2 = R["d1"], R["d2"]
     s.append(f"- **D1 (margen → desborde):** OR por minuto de margen = {d1['odds_ratio_por_minuto_de_margen']:.2f} "
              f"(IC95 % {d1['ic95'][0]:.2f}–{d1['ic95'][1]:.2f}; p = {d1['p_valor']:.3g}). "
-             "*Limitación:* el margen varía sobre todo **entre** tanques, de modo que D1 está confundida con "
+             f"Lectura (calculada): {d1['lectura']}. *Limitación:* el margen varía sobre todo **entre** tanques, de modo que D1 está confundida con "
              "características propias de cada tanque (ver `docs/03`, validez interna).")
     s.append(f"- **D2 (atención → desborde):** p(vigilancia) = {d2['p_vigilancia']:.3f}; "
              f"p(otra actividad) = {d2['p_otra_actividad']:.3f}; Fisher p = {d2['p_fisher']:.2g}. "
@@ -182,6 +187,7 @@ def _resumen_md(R, esc, tabla, cal, pron, params, res_man, res_pre, sens) -> str
     for t, r in R["h1_por_tanque"].items():
         s.append(f"  - {t}: {r['p_referencia']*100:.2f} % → {r['p_intervencion']*100:.2f} % "
                  f"(reducción absoluta {r['reduccion_absoluta']*100:.2f} pp)")
+    s.append(_lectura_h1_margen(R["h1_por_tanque"], res_man))
     mc = R["h1_pareado"]
     s.append(f"- Comparación pareada (mismo azar): desbordan solo en manual = {mc['desborda_solo_manual']}, "
              f"solo en predictivo = {mc['desborda_solo_predictivo']}; McNemar exacto p = {mc['p_mcnemar']:.2g}. "
@@ -192,20 +198,50 @@ def _resumen_md(R, esc, tabla, cal, pron, params, res_man, res_pre, sens) -> str
              f"p99 {a['avisos_por_10min_p99']:.0f}, máx. {a['avisos_por_10min_max']}. "
              f"¿Bajo la referencia de 1/10 min? **{'Sí' if a['cumple_referencia_aceptable'] else 'No'}**.")
     s.append(f"- Avisos decisivos (habrían desbordado sin aviso): {a['proporcion_avisos_decisivos']*100:.1f} %. "
-             "El resto son avisos rutinarios: bajo carga, pero cabe vigilar la fatiga si se añaden más tanques.\n")
+             + ("El resto son avisos rutinarios; la carga media queda bajo la referencia, pero cabe vigilar "
+                "la fatiga si se añaden más tanques.\n" if a["cumple_referencia_aceptable"] else
+                "El resto son avisos rutinarios y la carga media SUPERA la referencia: riesgo de fatiga "
+                "de alarmas; revisar umbrales antes del piloto.\n"))
     s.append("## 7. H2: antelación del aviso\n")
     s.append(f"P90 del tiempo de respuesta cuando el operario está en otra actividad ≈ {R['p90_respuesta_otra_min']:.1f} min. "
              f"Línea base manual: {R['base_manual_proporcion']*100:.2f} % de llenados con desborde.\n")
     piv = sens[sens.p_acuse_otra == 0.85].round(4)
     s.append(_md(piv, 4) + "\n")
     s.append(_lectura_antelacion(piv, R["base_manual_proporcion"], R["p90_respuesta_otra_min"]) + "\n")
+    h2 = R["h2"]
+    if "p_fisher" in h2:
+        s.append(f"**Prueba directa de H2** (avisos de todas las antelaciones de la malla, acuse del YAML): "
+                 f"antelación real ≤ P90 ({h2['p90_respuesta_min']:.1f} min): "
+                 f"{h2['p_desborde_menor_igual_p90']*100:.2f} % con desborde (n = {h2['n_menor_igual_p90']}); "
+                 f"> P90: {h2['p_desborde_mayor_p90']*100:.2f} % (n = {h2['n_mayor_p90']}); "
+                 f"Fisher p {'< 0,001' if h2['p_fisher'] < 0.001 else '= ' + format(h2['p_fisher'], '.2g')}. Decisión con el criterio de descarte: **{h2['decision']}**. "
+                 "*La proporción de cada grupo depende de qué antelaciones se incluyan en la malla.*\n")
+    else:
+        s.append(f"**Prueba directa de H2:** {h2['decision']}.\n")
     m = R["muestra"]
+    meses_fase = m["n_por_grupo_reduccion_75pct"] / m["llenados_totales_mes"]
     s.append("## 8. Tamaño de muestra del piloto\n")
     s.append(f"Con p base ≈ {m['p_base']*100:.2f} %, detectar una reducción del 75 % requiere ≈ "
              f"{m['n_por_grupo_reduccion_75pct']} llenados por grupo y del 50 %, ≈ {m['n_por_grupo_reduccion_50pct']} "
              f"(α = 0,05; potencia 0,80). Con ≈ {m['llenados_totales_mes']:.0f} llenados/mes (supuesto), "
-             "esto equivale a varios meses por fase.\n")
+             f"la reducción del 75 % exige ≈ {meses_fase:.1f} meses por fase.\n")
     return "\n".join(s)
+
+
+def _lectura_h1_margen(por_tanque: dict, res_man: pd.DataFrame) -> str:
+    """Frase calculada: ¿la reducción absoluta es mayor en los tanques de menor margen? (H1)."""
+    margen = res_man.set_index("tanque")["margen_medio_min"]
+    mediana = margen.median()
+    bajo = [t for t in por_tanque if margen[t] <= mediana]
+    alto = [t for t in por_tanque if margen[t] > mediana]
+    red = {t: por_tanque[t]["reduccion_absoluta"] for t in por_tanque}
+    rb = float(np.mean([red[t] for t in bajo])) if bajo else float("nan")
+    ra = float(np.mean([red[t] for t in alto])) if alto else float("nan")
+    veredicto = ("mayor en los de bajo margen, como predice H1" if rb > ra else
+                 "NO es mayor en los de bajo margen: no respalda esa parte de H1")
+    return (f"- Lectura (calculada): reducción absoluta media {rb*100:.2f} pp en tanques de bajo margen "
+            f"({', '.join(bajo)}) vs. {ra*100:.2f} pp en los de alto margen ({', '.join(alto)}); "
+            f"es {veredicto}.\n")
 
 
 def main(argv: list[str] | None = None) -> None:

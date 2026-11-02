@@ -31,7 +31,7 @@ Semilla: `2026` · Horizonte: 6 meses · Antelación base del aviso: 6 min
 | principal   |        158 |           4 |              8     |                   6.75  |        0.025 |      0.01  |      0.063 |
 | auxiliar    |        108 |           0 |             12     |                   0     |        0     |      0     |      0.034 |
 
-- **D1 (margen → desborde):** OR por minuto de margen = 0.68 (IC95 % 0.48–0.95; p = 0.0249). *Limitación:* el margen varía sobre todo **entre** tanques, de modo que D1 está confundida con características propias de cada tanque (ver `docs/03`, validez interna).
+- **D1 (margen → desborde):** OR por minuto de margen = 0.68 (IC95 % 0.48–0.95; p = 0.0249). Lectura (calculada): OR = 0.68 con IC95 % por debajo de 1: cada minuto adicional de margen reduce las probabilidades de desborde (consistente con D1). *Limitación:* el margen varía sobre todo **entre** tanques, de modo que D1 está confundida con características propias de cada tanque (ver `docs/03`, validez interna).
 - **D2 (atención → desborde):** p(vigilancia) = 0.000; p(otra actividad) = 0.088; Fisher p = 4.2e-15. Decisión con el criterio de descarte del grupo: **SOSTENIDA (p<0,05)**.
 
 ## 4. Pronóstico del tiempo hasta el 90 % (conjunto de prueba)
@@ -66,12 +66,14 @@ Lectura (calculada): a 3 min gana holt (RMSE 0.14 vs. 0.39 del balance); a 5 min
   - calderas: 4.81 % → 2.33 % (reducción absoluta 2.49 pp)
   - compresores: 4.10 % → 1.34 % (reducción absoluta 2.76 pp)
   - principal: 2.53 % → 1.05 % (reducción absoluta 1.48 pp)
+- Lectura (calculada): reducción absoluta media 2.62 pp en tanques de bajo margen (calderas, compresores) vs. 0.24 pp en los de alto margen (auxiliar, principal); es mayor en los de bajo margen, como predice H1.
+
 - Comparación pareada (mismo azar): desbordan solo en manual = 29, solo en predictivo = 8; McNemar exacto p = 0.00075. *Solo posible en simulación; el piloto real será no pareado.*
 
 ## 6. Carga de alarmas (inspirada en ISA-18.2)
 
 - Avisos/día: 5.6; por 10 min: media 0.039, p99 1, máx. 3. ¿Bajo la referencia de 1/10 min? **Sí**.
-- Avisos decisivos (habrían desbordado sin aviso): 2.9 %. El resto son avisos rutinarios: bajo carga, pero cabe vigilar la fatiga si se añaden más tanques.
+- Avisos decisivos (habrían desbordado sin aviso): 2.9 %. El resto son avisos rutinarios; la carga media queda bajo la referencia, pero cabe vigilar la fatiga si se añaden más tanques.
 
 ## 7. H2: antelación del aviso
 
@@ -91,6 +93,8 @@ P90 del tiempo de respuesta cuando el operario está en otra actividad ≈ 7.3 m
 
 Lectura (calculada): con antelación ≤ 1 min el aviso NO mejora la operación manual; la supera desde 2 min; ≥ 99 % de los avisos acusados se atienden a tiempo desde 6 min (P90 de respuesta ≈ 7.3 min). Es consecuencia del modelo y sus supuestos, no un hallazgo del caso.
 
+**Prueba directa de H2** (avisos de todas las antelaciones de la malla, acuse del YAML): antelación real ≤ P90 (7.3 min): 3.06 % con desborde (n = 244395); > P90: 0.79 % (n = 122157); Fisher p < 0,001. Decisión con el criterio de descarte: **SOSTENIDA (p<0,05)**. *La proporción de cada grupo depende de qué antelaciones se incluyan en la malla.*
+
 ## 8. Tamaño de muestra del piloto
 
-Con p base ≈ 3.23 %, detectar una reducción del 75 % requiere ≈ 477 llenados por grupo y del 50 %, ≈ 1382 (α = 0,05; potencia 0,80). Con ≈ 170 llenados/mes (supuesto), esto equivale a varios meses por fase.
+Con p base ≈ 3.23 %, detectar una reducción del 75 % requiere ≈ 477 llenados por grupo y del 50 %, ≈ 1382 (α = 0,05; potencia 0,80). Con ≈ 170 llenados/mes (supuesto), la reducción del 75 % exige ≈ 2.8 meses por fase.

@@ -30,9 +30,9 @@ Este repositorio convierte el borrador del grupo en un paquete completo y verifi
 ## Inicio rápido
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
+python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
-pytest                      # 22 pruebas
+pytest                      # 25 pruebas
 python -m gemelo_tanques    # regenera reports/ y data/sintetico/ (semilla 2026)
 make words                  # cuenta palabras de la publicación
 ```
@@ -48,7 +48,7 @@ src/gemelo_tanques/
   alarms.py                    carga de alarmas (inspirado en ISA-18.2)
   analysis.py                  Fisher, riesgo relativo, McNemar, logit, tamaño de muestra
   report.py / cli.py           figuras y resumen automático
-tests/                         22 pruebas (calibración contra el caso, criterio de descarte, reproducibilidad…)
+tests/                         25 pruebas (calibración contra el caso, criterio de descarte, reproducibilidad…)
 data/plantillas/               registro de llenados y diccionario de datos (para el diario de campo real)
 docs/                          publicación, respuestas, metodología, matriz de coherencia, rúbrica, arquitectura, ADR
 reports/                       resumen_resultados.md, figuras y CSV generados
@@ -61,6 +61,10 @@ reports/                       resumen_resultados.md, figuras y CSV generados
 - **Un aviso sin antelación suficiente no ayuda** (con 0–1 min es igual o peor que operar manual) y **su eficacia depende
   tanto de que se perciba como de cuándo suena**: hallazgos de diseño que respaldan H2 y la recomendación de canal redundante.
 - Pronosticar con un balance simple es competitivo; el suavizado de Holt lo mejora. La regresión móvil no siempre.
+- **H1 por tanque:** la reducción absoluta es mayor en los tanques de bajo margen (Calderas, Compresores),
+  como predice H1 (frase calculada en `reports/resumen_resultados.md`, sección 5).
+- **H2 (prueba directa):** los avisos con antelación real mayor al P90 del tiempo de respuesta (~7 min)
+  desbordan en menor proporción que los demás; el tamaño del efecto depende de la malla de antelaciones simulada.
 - Detectar una reducción del 75 % de desbordes exige del orden de cientos de llenados por fase: el piloto debe durar meses.
 
 ## Limitaciones

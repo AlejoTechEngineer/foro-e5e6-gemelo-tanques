@@ -45,3 +45,22 @@ def test_mcnemar_conteos():
     p = np.array([0, 0, 1, 0, 0, 1])
     r = A.mcnemar_pareado(m, p)
     assert r["desborda_solo_manual"] == 2 and r["desborda_solo_predictivo"] == 1
+
+
+def _avisos(ant, desb):
+    return pd.DataFrame({"modo": "predictivo", "antelacion_real_min": ant, "desborde": desb})
+
+
+def test_h2_sostenida_si_mas_antelacion_desborda_menos():
+    df = _avisos([2.0] * 200 + [9.0] * 200, [1] * 40 + [0] * 160 + [1] * 2 + [0] * 198)
+    r = A.prueba_h2(df, p90_respuesta_min=7.0)
+    assert r["n_mayor_p90"] == 200 and r["decision"].startswith("SOSTENIDA")
+
+
+def test_h2_criterio_de_descarte():
+    df = _avisos([2.0] * 100 + [9.0] * 100, [1] * 5 + [0] * 95 + [1] * 10 + [0] * 90)
+    assert A.prueba_h2(df, 7.0)["H_descartada_por_criterio"] is True
+
+
+def test_h2_grupo_vacio_no_rompe():
+    assert A.prueba_h2(_avisos([2.0] * 10, [0] * 10), 7.0)["decision"].startswith("NO EVALUABLE")

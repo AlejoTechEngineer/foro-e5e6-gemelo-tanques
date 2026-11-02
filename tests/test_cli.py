@@ -13,3 +13,5 @@ def test_pipeline_completo_y_reproducible(tmp_path):
     assert (tmp_path / "a" / "resumen_resultados.md").exists()
     assert "DATOS SINTÉTICOS" in (tmp_path / "a" / "resumen_resultados.md").read_text(encoding="utf-8")
     assert (tmp_path / "a" / "figures" / "fig5_sensibilidad.png").exists()
+    assert "decision" in r1["h2"]
+    assert "Lectura (calculada)" in (tmp_path / "a" / "resumen_resultados.md").read_text(encoding="utf-8")
