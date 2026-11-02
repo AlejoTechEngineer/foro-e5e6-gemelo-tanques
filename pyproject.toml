@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gemelo-tanques"
+version = "0.1.0"
+description = "Prototipo reproducible (gemelo digital ligero) para el Foro Escenarios 5 y 6 - Metodología de Casos"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.26",
+  "pandas>=2.1",
+  "scipy>=1.11",
+  "statsmodels>=0.14",
+  "matplotlib>=3.8",
+  "pyyaml>=6.0",
+  "tabulate>=0.9",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.5"]
+
+[project.scripts]
+gemelo-tanques = "gemelo_tanques.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100

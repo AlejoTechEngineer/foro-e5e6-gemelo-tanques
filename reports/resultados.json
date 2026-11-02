@@ -1,0 +1,120 @@
+{
+  "seed": 2026,
+  "meses": 6,
+  "d1": {
+    "odds_ratio_por_minuto_de_margen": 0.6759337493164002,
+    "ic95": [
+      0.48003600860541135,
+      0.9517753361716783
+    ],
+    "p_valor": 0.024895087980376825,
+    "lectura": "OR < 1: cada minuto adicional de margen reduce las probabilidades de desborde"
+  },
+  "d2": {
+    "p_vigilancia": 0.0,
+    "p_otra_actividad": 0.08767772511848342,
+    "p_fisher": 4.221110231399187e-15,
+    "H_descartada_por_criterio": false,
+    "decision": "SOSTENIDA (p<0,05)"
+  },
+  "h1_global": {
+    "p_referencia": 0.036779324055666,
+    "p_intervencion": 0.016175071360608945,
+    "reduccion_absoluta": 0.020604252695057057,
+    "reduccion_absoluta_ic95": [
+      0.0069005566978717625,
+      0.034350509691612456
+    ],
+    "riesgo_relativo": 0.43978707537223244,
+    "riesgo_relativo_ic95": [
+      0.22670138715008264,
+      0.7478322275886321
+    ],
+    "p_fisher": 0.0036318212287671093
+  },
+  "h1_por_tanque": {
+    "auxiliar": {
+      "p_referencia": 0.0,
+      "p_intervencion": 0.009900990099009901,
+      "reduccion_absoluta": -0.009900990099009901,
+      "reduccion_absoluta_ic95": [
+        -0.0297029702970297,
+        0.0
+      ],
+      "riesgo_relativo": NaN,
+      "riesgo_relativo_ic95": [
+        NaN,
+        NaN
+      ],
+      "p_fisher": 0.4832535885167464
+    },
+    "calderas": {
+      "p_referencia": 0.0481283422459893,
+      "p_intervencion": 0.023255813953488372,
+      "reduccion_absoluta": 0.02487252829250093,
+      "reduccion_absoluta_ic95": [
+        -0.001149145352291726,
+        0.05134104381710401
+      ],
+      "riesgo_relativo": 0.48320413436692505,
+      "riesgo_relativo_ic95": [
+        0.19328165374677003,
+        1.0269094530577092
+      ],
+      "p_fisher": 0.07762105724443656
+    },
+    "compresores": {
+      "p_referencia": 0.040983606557377046,
+      "p_intervencion": 0.013404825737265416,
+      "reduccion_absoluta": 0.02757878082011163,
+      "reduccion_absoluta_ic95": [
+        0.005772132612549261,
+        0.052016400767664346
+      ],
+      "riesgo_relativo": 0.3270777479892762,
+      "riesgo_relativo_ic95": [
+        0.07547948030521758,
+        0.8028271996100415
+      ],
+      "p_fisher": 0.02348738050328655
+    },
+    "principal": {
+      "p_referencia": 0.02531645569620253,
+      "p_intervencion": 0.010526315789473684,
+      "reduccion_absoluta": 0.014790139906728847,
+      "reduccion_absoluta_ic95": [
+        -0.010526315789473684,
+        0.04536975349766822
+      ],
+      "riesgo_relativo": 0.41578947368421054,
+      "riesgo_relativo_ic95": [
+        0.0,
+        2.0789473684210527
+      ],
+      "p_fisher": 0.4166061142173091
+    }
+  },
+  "h1_pareado": {
+    "desborda_solo_manual": 29,
+    "desborda_solo_predictivo": 8,
+    "p_mcnemar": 0.0007528970600105822
+  },
+  "alarmas": {
+    "avisos_por_dia": 5.588888888888889,
+    "avisos_por_10min_media": 0.03881172839506173,
+    "avisos_por_10min_p99": 1.0,
+    "avisos_por_10min_max": 3,
+    "cumple_referencia_aceptable": true,
+    "proporcion_avisos_decisivos": 0.02882703777335984,
+    "proporcion_avisos_acusados": 0.9234592445328031,
+    "proporcion_acusados_a_tiempo": 0.9903121636167922
+  },
+  "p90_respuesta_otra_min": 7.345813889552339,
+  "base_manual_proporcion": 0.032336476134354745,
+  "muestra": {
+    "p_base": 0.032336476134354745,
+    "n_por_grupo_reduccion_75pct": 477,
+    "n_por_grupo_reduccion_50pct": 1382,
+    "llenados_totales_mes": 170.0
+  }
+}

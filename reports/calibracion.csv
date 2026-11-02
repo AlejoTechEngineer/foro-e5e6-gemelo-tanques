@@ -1,0 +1,5 @@
+tanque,llenados,desbordes,desbordes_por_mes,proporcion_desborde,observado_min,observado_max,dentro_de_rango
+auxiliar,4728,23,0.09583333333333334,0.004864636209813875,0.083,0.167,True
+calderas,14384,588,2.45,0.04087875417130145,2.0,3.0,True
+compresores,14478,581,2.4208333333333334,0.04012985218952894,2.0,3.0,True
+principal,7212,130,0.5416666666666666,0.018025513033832503,0.0,1.0,True

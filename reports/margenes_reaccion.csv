@@ -1,0 +1,5 @@
+tanque,capacidad_m3_supuesta,caudal_min_m3h,caudal_max_m3h,margen_min_conservador,margen_min_nominal,margen_min_optimista
+calderas,30.0,30.0,35.0,5.142857142857143,5.538461538461538,6.0
+compresores,40.0,40.0,45.0,5.333333333333334,5.647058823529411,6.0
+principal,120.0,90.0,90.0,8.0,8.0,8.0
+auxiliar,10.0,5.0,5.0,12.0,12.0,12.0

@@ -1,0 +1,51 @@
+# Parámetros del escenario. Fuente de cada dato en el campo `fuente_*`.
+#   "caso"     -> viene del enunciado del caso (tabla del foro).
+#   "supuesto" -> NO está en el caso; es un supuesto de modelado a reemplazar con datos de campo.
+nivel_objetivo: 0.90        # el operario debe cerrar al llegar al 90 % (supuesto de modelado)
+nivel_inicial: 0.30         # el llenado arranca por bajo nivel (supuesto de modelado)
+fraccion_margen: 0.10       # H1: "último 10 %" con la salida detenida (definición del grupo)
+ruido_sensor_pct: 0.5       # ruido del sensor de nivel, % de escala completa (supuesto)
+deriva_caudal_pct: 2.0      # deriva lenta del caudal por presión de red, % (supuesto)
+
+tanques:
+  auxiliar:
+    capacidad_m3: 10        # supuesto
+    caudal_min_m3h: 5       # caso
+    caudal_max_m3h: 5       # caso
+    llenados_mes: 20        # supuesto (calibrado: 1 a 2 desbordes/año)
+  calderas:
+    capacidad_m3: 30        # supuesto
+    caudal_min_m3h: 30      # caso: 15 (B1) + 15
+    caudal_max_m3h: 35      # caso: 15 (B1) + 20
+    llenados_mes: 60        # supuesto (calibrado: 2 a 3 desbordes/mes)
+  compresores:
+    capacidad_m3: 40        # supuesto
+    caudal_min_m3h: 40      # caso: 25 (Calderas) + 15
+    caudal_max_m3h: 45      # caso: 25 (Calderas) + 20
+    llenados_mes: 60        # supuesto (calibrado: 2 a 3 desbordes/mes)
+  principal:
+    capacidad_m3: 120       # supuesto
+    caudal_min_m3h: 90      # caso: 45 + 20 (PTAR) + 25 (PTAP)
+    caudal_max_m3h: 90      # caso
+    llenados_mes: 30        # supuesto (calibrado: 0 a 1 desborde/mes)
+
+# Frecuencias observadas en el caso (desbordes por mes) para validar la calibración.
+observado_mes:
+  auxiliar:    [0.083, 0.167]   # 1 a 2 al año
+  calderas:    [2, 3]
+  compresores: [2, 3]
+  principal:   [0, 1]
+
+operario:
+  # H2 (diagnóstico): proporción de llenados en que el operario atiende otra actividad (supuesto)
+  p_otra_actividad: 0.40
+  # Retraso de cierre (min) tras alcanzar el 90 %: lognormal(mediana, sigma). Supuestos a medir en campo.
+  cierre_vigilancia: {mediana_min: 0.8, sigma: 0.7}
+  cierre_otra:       {mediana_min: 2.0, sigma: 0.8}
+  # Respuesta a un aviso (min desde que suena hasta cerrar la válvula): lognormal.
+  # Si el operario está en otra actividad debe dejarla y desplazarse a las válvulas (supuesto).
+  respuesta_aviso_vigilancia: {mediana_min: 0.8, sigma: 0.5}
+  respuesta_aviso_otra:       {mediana_min: 3.0, sigma: 0.7}
+  # Probabilidad de que el aviso sea percibido y atendido.
+  p_acuse_vigilancia: 0.98
+  p_acuse_otra:       0.85
