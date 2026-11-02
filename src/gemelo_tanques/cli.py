@@ -51,11 +51,13 @@ def ejecutar_todo(ruta_cfg: Path, salida: Path, datos: Path, seed: int, meses: i
     R["d1"] = analysis.diagnostico_d1(man)
     R["d2"] = analysis.diagnostico_d2(man)
     res_man = analysis.resumen_por_tanque(man)
+    res_man.to_csv(salida / "resumen_manual_por_tanque.csv", index=False)
 
     # 5. H1 (solución): diseño antes/después NO pareado (como será el piloto real)
     base_b = simulation.generar_base(esc, meses, np.random.default_rng(seed + 1))
     pre_b = simulation.aplicar_modo(base_b, esc, "predictivo", ANTELACION_BASE_MIN, sigma_pron)
     res_pre = analysis.resumen_por_tanque(pre_b)
+    res_pre.to_csv(salida / "resumen_predictivo_por_tanque.csv", index=False)
     R["h1_global"] = analysis.comparar_proporciones(
         int(man["desborde"].sum()), len(man), int(pre_b["desborde"].sum()), len(pre_b))
     R["h1_por_tanque"] = {}
